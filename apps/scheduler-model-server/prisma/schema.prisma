@@ -19,6 +19,8 @@ model AcademicWeek {
   weeklyProfessorAvailability WeeklyProfessorAvailability[]
   weeklyTeachingLoads         WeeklyTeachingLoad[]
 
+  scheduleSolutions           ScheduleSolution[]
+
   @@map("academicweeks")
 }
 
@@ -163,6 +165,9 @@ model Schedule {
   week         AcademicWeek @relation(fields: [weekId], references: [id])
   weekId       Int
 
+  scheduleSolution  ScheduleSolution? @relation(fields: [scheduleSolutionId], references: [id])
+  scheduleSolutionId Int?             @map("schedule_solution_id")
+
   @@map("schedule")
 }
 
@@ -182,4 +187,17 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+model ScheduleSolution {
+  id           Int           @id @default(autoincrement())
+  week         AcademicWeek  @relation(fields: [weekId], references: [id])
+  weekId       Int
+  status       String        
+  statistics   Json?         
+  createdAt    DateTime      @default(now()) @map("created_at")
+  isSelected   Boolean       @default(false) @map("is_selected")
+  schedule     Schedule[]    
+
+  @@map("schedulesolutions")
 }

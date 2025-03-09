@@ -22,6 +22,9 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { SchedulerModule } from './scheduler/scheduler.module';
+import { ScheduleSolutionModule } from './schedule-solution/schedule-solution.module';
+// import { ScheduleSolutionModule } from './schedule-solution/schedule-solution.module';
 
 @Module({
   controllers: [],
@@ -61,6 +64,8 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       inject: [ConfigService],
       imports: [ConfigModule],
     }),
+    SchedulerModule,
+    ScheduleSolutionModule,
   ],
   providers: [
     {
