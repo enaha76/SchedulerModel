@@ -23,6 +23,12 @@ async function main() {
     })
   );
 
+  // Enable CORS
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:3001'], // Add your frontend URL
+    credentials: true,
+  });
+
   const document = SwaggerModule.createDocument(app, swaggerDocumentOptions);
 
   /** check if there is Public decorator for each path (action) and its method (findMany / findOne) on each controller */

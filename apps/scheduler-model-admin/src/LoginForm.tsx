@@ -4,28 +4,34 @@ import { Button } from "@mui/material";
 import "./login.scss";
 
 const LoginForm = ({ theme }: any) => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");  // Changed from username to email
   const [password, setPassword] = useState("");
   const login = useLogin();
   const notify = useNotify();
   const BASE_URI = process.env.REACT_APP_SERVER_URL;
+  
   const submit = (e: any) => {
     e.preventDefault();
-    login({ username, password }).catch(() =>
-      notify("Invalid username or password")
+    login({ username: email, password }).catch(() =>  // Changed from username to email
+      notify("Invalid email or password")
     );
   };
+
+// Option 1: Rename the parameter to match backend
+// login({ username: email, password })
+
+// Option 2: Update GraphQL query to use email
 
   return (
     <form onSubmit={submit}>
       <label>
-        <span>Username</span>
+        <span>Email</span>  {/* Updated label */}
 
         <input
-          name="username"
-          type="textbox"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          name="email"  
+          type="email" 
+          value={email}  
+          onChange={(e) => setEmail(e.target.value)}  
         />
       </label>
       <label>
