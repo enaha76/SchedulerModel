@@ -1,0 +1,167 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AcademicWeek {
+  active                      Boolean                       @default(false)
+  endDate                     DateTime                      @map("end_date") @db.Date
+  exceptionalClosures         ExceptionalClosure[]
+  id                          Int                           @id @default(autoincrement())
+  locked                      Boolean                       @default(false)
+  name                        String                        @db.VarChar(50)
+  schedule                    Schedule[]
+  startDate                   DateTime                      @map("start_date") @db.Date
+  weeklyProfessorAvailability WeeklyProfessorAvailability[]
+  weeklyTeachingLoads         WeeklyTeachingLoad[]
+
+  @@map("academicweeks")
+}
+
+model Course {
+  code                 String                @db.VarChar(20)
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @db.VarChar(100)
+  professorAssignments ProfessorAssignment[]
+  schedule             Schedule[]
+  semester             Int
+  specialization       String                @db.VarChar(50)
+  weeklyTeachingLoads  WeeklyTeachingLoad[]
+
+  @@map("courses")
+}
+
+model Group {
+  groupOverlaps1       GroupOverlap[]        @relation(name: "group1")
+  groupOverlaps2       GroupOverlap[]        @relation(name: "group2")
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @db.VarChar(50)
+  professorAssignments ProfessorAssignment[]
+  schedule             Schedule[]
+  semester             Int
+  specialization       String                @db.VarChar(50)
+  weeklyTeachingLoads  WeeklyTeachingLoad[]
+
+  @@map("groups")
+}
+
+model Professor {
+  department                  String?                       @db.VarChar(50)
+  email                       String?                       @unique @db.VarChar(100)
+  id                          Int                           @id @default(autoincrement())
+  name                        String                        @db.VarChar(100)
+  professorAssignments        ProfessorAssignment[]
+  schedule                    Schedule[]
+  weeklyProfessorAvailability WeeklyProfessorAvailability[]
+
+  @@map("professors")
+}
+
+model TimeSlot {
+  dayOfWeek                   Int                           @map("day_of_week")
+  endTime                     DateTime                      @map("end_time") @db.Time
+  exceptionalClosures         ExceptionalClosure[]
+  id                          Int                           @id @default(autoincrement())
+  schedule                    Schedule[]
+  slotIndex                   Int                           @map("slot_index")
+  startTime                   DateTime                      @map("start_time") @db.Time
+  weeklyProfessorAvailability WeeklyProfessorAvailability[]
+
+  @@map("timeslots")
+}
+
+model WeeklyTeachingLoad {
+  course        Course       @relation(fields: [courseId], references: [id])
+  courseId      Int
+  group         Group        @relation(fields: [groupId], references: [id])
+  groupId       Int
+  hoursRequired Int          @map("hours_required")
+  id            Int          @id @default(autoincrement())
+  teachingType  String       @map("teaching_type") @db.VarChar(3)
+  week          AcademicWeek @relation(fields: [weekId], references: [id])
+  weekId        Int
+
+  @@map("weeklyteachingloads")
+}
+
+model WeeklyProfessorAvailability {
+  id          Int          @id @default(autoincrement())
+  isAvailable Boolean      @map("is_available")
+  professor   Professor    @relation(fields: [professorId], references: [id])
+  professorId Int
+  timeSlot    TimeSlot     @relation(fields: [timeSlotId], references: [id])
+  timeSlotId  Int
+  week        AcademicWeek @relation(fields: [weekId], references: [id])
+  weekId      Int
+
+  @@map("weeklyprofessoravailability")
+}
+
+model ProfessorAssignment {
+  course       Course    @relation(fields: [courseId], references: [id])
+  courseId     Int
+  group        Group     @relation(fields: [groupId], references: [id])
+  groupId      Int
+  id           Int       @id @default(autoincrement())
+  professor    Professor @relation(fields: [professorId], references: [id])
+  professorId  Int
+  teachingType String    @map("teaching_type") @db.VarChar(3)
+
+  @@map("professorassignments")
+}
+
+model GroupOverlap {
+  canOverlap Boolean @default(false) @map("can_overlap")
+  group1     Group   @relation(name: "group1", fields: [group1Id], references: [id])
+  group1Id   Int
+  group2     Group   @relation(name: "group2", fields: [group2Id], references: [id])
+  group2Id   Int
+  id         Int     @id @default(autoincrement())
+
+  @@map("groupoverlaps")
+}
+
+model Room {
+  capacity  Int
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(50)
+  schedule  Schedule[]
+  typeField String     @map("type") @db.VarChar(10)
+
+  @@map("rooms")
+}
+
+model ExceptionalClosure {
+  id         Int          @id @default(autoincrement())
+  reason     String?      @db.VarChar(255)
+  timeSlot   TimeSlot     @relation(fields: [timeSlotId], references: [id])
+  timeSlotId Int
+  week       AcademicWeek @relation(fields: [weekId], references: [id])
+  weekId     Int
+
+  @@map("exceptionalclosures")
+}
+
+model Schedule {
+  course       Course       @relation(fields: [courseId], references: [id])
+  courseId     Int
+  createdAt    DateTime     @default(now()) @map("created_at")
+  group        Group        @relation(fields: [groupId], references: [id])
+  groupId      Int
+  id           Int          @id @default(autoincrement())
+  professor    Professor    @relation(fields: [professorId], references: [id])
+  professorId  Int
+  room         Room         @relation(fields: [roomId], references: [id])
+  roomId       Int
+  teachingType String       @map("teaching_type") @db.VarChar(3)
+  timeSlot     TimeSlot     @relation(fields: [timeSlotId], references: [id])
+  timeSlotId   Int
+  week         AcademicWeek @relation(fields: [weekId], references: [id])
+  weekId       Int
+
+  @@map("schedule")
+}
