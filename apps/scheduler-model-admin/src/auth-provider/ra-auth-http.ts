@@ -10,8 +10,11 @@ import { apolloClient } from "../data-provider/graphqlDataProvider";
 const LOGIN = gql`
   mutation login($username: String!, $password: String!) {
     login(credentials: { username: $username, password: $password }) {
-      username
-      roles
+      accessToken
+      user {
+        username
+        roles
+      }
     }
   }
 `;

@@ -19,6 +19,9 @@ import { ServeStaticOptionsService } from "./serveStaticOptions.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   controllers: [],
@@ -42,6 +45,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
     ServeStaticModule.forRootAsync({
       useClass: ServeStaticOptionsService,
     }),
+    AuthModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: (configService: ConfigService) => {
@@ -58,6 +62,11 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
       imports: [ConfigModule],
     }),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

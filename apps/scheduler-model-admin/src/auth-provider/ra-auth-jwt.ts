@@ -10,8 +10,11 @@ import { apolloClient } from "../data-provider/graphqlDataProvider";
 const LOGIN = gql`
   mutation login($username: String!, $password: String!) {
     login(credentials: { username: $username, password: $password }) {
-      username
       accessToken
+      user {
+        username
+        roles
+      }
     }
   }
 `;
@@ -25,10 +28,22 @@ export const jwtAuthProvider: AuthProvider = {
       },
     });
 
-    if (userData && userData.data?.login.username) {
+    // if (userData && userData.data?.login.user.username) {
+    //   localStorage.setItem(
+    //     CREDENTIALS_LOCAL_STORAGE_ITEM,
+    //     createBearerAuthorizationHeader(userData.data.login.access_token)
+    //   );
+    //   localStorage.setItem(
+    //     USER_DATA_LOCAL_STORAGE_ITEM,
+    //     JSON.stringify(userData.data)
+    //   );
+    //   return Promise.resolve();
+    // }
+
+    if (userData && userData.data?.login.user.username) {
       localStorage.setItem(
         CREDENTIALS_LOCAL_STORAGE_ITEM,
-        createBearerAuthorizationHeader(userData.data.login?.accessToken)
+        createBearerAuthorizationHeader(userData.data.login?.access_token)
       );
       localStorage.setItem(
         USER_DATA_LOCAL_STORAGE_ITEM,
@@ -60,8 +75,8 @@ export const jwtAuthProvider: AuthProvider = {
     const userData: LoginMutateResult = JSON.parse(str || "");
 
     return Promise.resolve({
-      id: userData.login.username,
-      fullName: userData.login.username,
+      id: userData.login.user.username,
+      fullName: userData.login.user.username,
       avatar: undefined,
     });
   },
@@ -70,3 +85,5 @@ export const jwtAuthProvider: AuthProvider = {
 export function createBearerAuthorizationHeader(accessToken: string) {
   return `Bearer ${accessToken}`;
 }
+
+
